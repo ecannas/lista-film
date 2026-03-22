@@ -5,6 +5,7 @@ import com.lista.film.repositories.UtenteRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -18,6 +19,7 @@ public class UtenteService {
         this.encoder = encoder;
     }
 
+    @Transactional
     public UtenteEntity registra(String username, String password) {
         if (repo.findByUsername(username).isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Username già esistente");

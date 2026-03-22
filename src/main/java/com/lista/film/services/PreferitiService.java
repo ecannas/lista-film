@@ -4,9 +4,9 @@ import com.lista.film.entities.PreferitiEntity;
 import com.lista.film.entities.UtenteEntity;
 import com.lista.film.repositories.PreferitiRepository;
 import com.lista.film.repositories.UtenteRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -28,6 +28,7 @@ public class PreferitiService {
         return repo.findByUtente(utente);
     }
 
+    @Transactional
     public PreferitiEntity aggiungiPreferito(PreferitiEntity film, String username) {
         UtenteEntity utente = utenteRepo.findByUsername(username)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utente non trovato"));
