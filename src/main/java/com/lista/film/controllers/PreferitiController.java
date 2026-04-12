@@ -3,10 +3,10 @@ package com.lista.film.controllers;
 import com.lista.film.entities.PreferitiEntity;
 import com.lista.film.entities.UtenteEntity;
 import com.lista.film.services.PreferitiService;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @RestController
 @RequestMapping("/api/preferiti")
@@ -19,38 +19,34 @@ public class PreferitiController {
     }
 
     @GetMapping
-    public List<PreferitiEntity> getTutti(HttpSession session) {
-        UtenteEntity utente = (UtenteEntity) session.getAttribute("utente");
-        if (utente == null) {
+    public List<PreferitiEntity> getTutti(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
             throw new RuntimeException("Utente non loggato");
         }
-        return service.getPreferitiPerUtente(utente.getUsername());
+        return service.getPreferitiPerUtente(userDetails.getUsername());
     }
 
     @PostMapping
-    public PreferitiEntity aggiungiPreferito(@RequestBody PreferitiEntity film, HttpSession session) {
-        UtenteEntity utente = (UtenteEntity) session.getAttribute("utente");
-        if (utente == null) {
+    public PreferitiEntity aggiungiPreferito(@RequestBody PreferitiEntity film, @AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
             throw new RuntimeException("Utente non loggato");
         }
-        return service.aggiungiPreferito(film, utente.getUsername());
+        return service.aggiungiPreferito(film, userDetails.getUsername());
     }
 
     @DeleteMapping("/{imdbID}")
-    public void eliminaPreferito(@PathVariable String imdbID, HttpSession session) {
-        UtenteEntity utente = (UtenteEntity) session.getAttribute("utente");
-        if (utente == null) {
+    public void eliminaPreferito(@PathVariable String imdbID, @AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
             throw new RuntimeException("Utente non loggato");
         }
-        service.eliminaPreferito(imdbID, utente.getUsername());
+        service.eliminaPreferito(imdbID, userDetails.getUsername());
     }
 
     @GetMapping("/esiste/{imdbID}")
-    public boolean esisteNeiPreferiti(@PathVariable String imdbID, HttpSession session) {
-        UtenteEntity utente = (UtenteEntity) session.getAttribute("utente");
-        if (utente == null) {
+    public boolean esisteNeiPreferiti(@PathVariable String imdbID, @AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
             throw new RuntimeException("Utente non loggato");
         }
-        return service.esisteNeiPreferiti(imdbID, utente.getUsername());
+        return service.esisteNeiPreferiti(imdbID, userDetails.getUsername());
     }
 }

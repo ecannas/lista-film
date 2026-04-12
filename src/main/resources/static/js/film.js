@@ -133,9 +133,13 @@ async function aggiungiAiPreferiti(film) {
       poster: film.poster
     };
 
+    const csrfToken = getCsrfToken();
     const response = await fetch("/api/preferiti", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "X-XSRF-TOKEN": csrfToken
+      },
       body: JSON.stringify(filmDaInviare)
     });
 
@@ -158,26 +162,6 @@ async function aggiungiAiPreferiti(film) {
   }
 }
 
-
-function mostraToast(messaggio, tipo = "info") {
-  const toastEl = document.getElementById("toastMessage");
-  const toastText = document.getElementById("toastText");
-
-  if (!toastEl || !toastText) {
-    console.error("Toast elements not found!");
-    return;
-  }
-
-  toastEl.className = "toast align-items-center border-0 text-bg-" +
-    (tipo === "success" ? "success" :
-     tipo === "error" ? "danger" :
-     tipo === "warning" ? "warning" : "dark");
-
-  toastText.textContent = messaggio;
-
-  const toast = new bootstrap.Toast(toastEl);
-  toast.show();
-}
 
 const ultimaRicerca = sessionStorage.getItem("ultimaRicerca");
  if (ultimaRicerca) {

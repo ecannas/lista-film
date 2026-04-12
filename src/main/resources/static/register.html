@@ -34,6 +34,7 @@
     </div>
 </div>
 
+<script src="/js/utils.js"></script>
 <script>
     document.getElementById("registerForm").addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -43,9 +44,14 @@
       const msg = document.getElementById("msg");
 
       try {
+        const csrfToken = getCsrfToken();
+
         const res = await fetch("/utenti/register", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "X-XSRF-TOKEN": csrfToken
+          },
           body: JSON.stringify({ username, password })
         });
 

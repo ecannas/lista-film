@@ -10,7 +10,7 @@ Applicazione Spring Boot che permette di:
 
 👤 Registrarsi / effettuare login
 
-🔐 Gestione dell’autenticazione tramite sessione HTTP e filtro personalizzato (AuthFilter), senza usare Spring Security.
+🔐 Gestione dell'autenticazione e dell'autorizzazione tramite Spring Security 6, con salvataggio sicuro delle password (BCrypt) e protezione attiva contro vulnerabilità CSRF.
 
 💾 Salvare utenti e preferiti su database
 
@@ -27,10 +27,9 @@ Film/
         ├── java/
         │   └── com/lista/film/
         │       ├── config/
-        │       │   ├── AuthFilter.java
+        │       │   ├── SecurityConfig.java
         │       │   └── WebClientConfig.java
         │       ├── controllers/
-        │       │   ├── AuthController.java
         │       │   ├── MovieRestController.java
         │       │   ├── PreferitiController.java
         │       │   └── UtenteController.java
@@ -45,6 +44,7 @@ Film/
         │       │   ├── PreferitiRepository.java
         │       │   └── UtenteRepository.java
         │       ├── services/
+        │       │   ├── CustomUserDetailsService.java
         │       │   ├── MovieService.java
         │       │   ├── PreferitiService.java
         │       │   └── UtenteService.java
@@ -53,7 +53,8 @@ Film/
         │   └── static/
         │       ├── js/
         │       │   ├── film.js
-        │       │   └── preferiti.js
+        │       │   ├── preferiti.js
+        │       │   └── utils.js
         │       ├── index.html
         │       ├── login.html
         │       ├── preferiti.html
@@ -74,7 +75,7 @@ pom.xml
 - Vanilla JavaScript
 - Bootstrap 5.3.3
 - WebClient (per chiamate all’API OMDb)
-- Filtro personalizzato (AuthFilter) per la gestione dell’autenticazione e la protezione delle pagine, senza usare Spring Security
+- Spring Security 6 (Protezione API, Gestione Sessioni, CookieCsrfTokenRepository, BCrypt)
 
 
 ⚙️ Configurazione del database
@@ -103,11 +104,6 @@ spring.jpa.show-sql=true
 # --- OMDb API ---
 omdb.api.url=https://www.omdbapi.com/
 omdb.api.key=YOUR_API_KEY
-
-# Disabilito Spring Security: autenticazione gestita con AuthFilter e sessione HTTP
-spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
-
-
 ```
 ➡️ Hibernate crea automaticamente le tabelle al primo avvio.
 
@@ -146,24 +142,14 @@ spring.jpa.hibernate.ddl-auto=create
 | POST   | /utenti/register   | Registrazione nuovo utente           |
 | GET    | /utenti/me         | Username dell’utente loggato         |
 
-
-🔐 Autenticazione Web (sessione)
-
-| Metodo | Endpoint  | Descrizione                    |
-|--------|-----------|--------------------------------|
-| POST   | /login    | Login con sessione HTTP        |
-| GET    | /logout   | Logout (invalida la sessione)  |
-
+Nota: Gli endpoint /login (POST) e /logout (POST) non sono mappati nei controller, ma sono gestiti automaticamente in modo sicuro dai filtri nativi di Spring Security.
 ```
 
-> ⚠️ Importante  
-> Questo progetto distingue tra:
-> - **API REST** (`/api/**`) che restituiscono JSON
-> - **Endpoint di autenticazione web** (`/login`, `/logout`) che gestiscono la sessione HTTP e fanno redirect alle pagine HTML
-> - **Sessione utente**, gestita tramite `HttpSession` e protetta da un filtro personalizzato (`AuthFilter`)
->
-> Non viene utilizzato Spring Security.
-
+> ⚠️ Architettura di Sicurezza  
+> Il progetto implementa una netta separazione tra frontend e backend RESTful, protetta da Spring Security:
+> - **API REST** (/api/**): Protette da accesso non autorizzato. Le chiamate che modificano lo stato (POST, PUT, DELETE) richiedono un token CSRF.
+> - **Gestione Utenti**: Le password sono hashate tramite BCryptPasswordEncoder prima del salvataggio su database.
+> - **Integrazione Frontend**: Il frontend (Vanilla JS) comunica con Spring Security leggendo il cookie XSRF-TOKEN e allegandolo agli header delle chiamate di mutazione, permettendo un'architettura sicura senza l'uso di template engine server-side.
 
 
 🖥️ Interfaccia Web
@@ -179,8 +165,7 @@ Pagine principali:
 - register.html → registrazione utente
 - preferiti.html → lista dei film preferiti
 
-Le chiamate al backend vengono effettuate tramite **fetch API** verso le API REST dell’applicazione.
-L’accesso alle pagine protette è gestito tramite **sessione HTTP** e **AuthFilter**.
+Le chiamate al backend vengono effettuate tramite fetch API asincrone. L'accesso alle risorse è validato automaticamente dalla SecurityFilterChain di Spring Security. Per le operazioni di scrittura (come l'aggiunta o la rimozione di preferiti), il frontend JavaScript recupera dinamicamente il token CSRF dai cookie e lo inietta negli header HTTP per superare i controlli di sicurezza del server.
 
 ▶️ Avvio del progetto
 
@@ -189,7 +174,7 @@ Da IDE (IntelliJ / Eclipse):
 - Esegui la classe: FilmApplication
 
 Apri nel browser:
-http://localhost:8080/login.html
+http://localhost:8080/
 
 📄 Licenza
 

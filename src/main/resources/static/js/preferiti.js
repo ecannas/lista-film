@@ -69,7 +69,14 @@ async function caricaPreferiti() {
 async function eliminaPreferito(imdbID) {
   try {
     const endpoint = '/api/preferiti/' + encodeURIComponent(imdbID);
-    const response = await fetch(endpoint, { method: "DELETE" });
+    const csrfToken = getCsrfToken();
+
+    const response = await fetch(endpoint, {
+        method: "DELETE",
+        headers: {
+           "X-XSRF-TOKEN": csrfToken
+        }
+    });
 
     if (response.ok) {
       mostraToast("Film rimosso dai preferiti!", "warning");
@@ -82,25 +89,7 @@ async function eliminaPreferito(imdbID) {
   }
 }
 
-function mostraToast(messaggio, tipo = "info") {
-  const toastEl = document.getElementById("toastMessage");
-  const toastText = document.getElementById("toastText");
 
-  if (!toastEl || !toastText) {
-    console.error("Toast elements not found!");
-    return;
-  }
-
-  toastEl.className = "toast align-items-center border-0 text-bg-" +
-    (tipo === "success" ? "success" :
-     tipo === "error" ? "danger" :
-     tipo === "warning" ? "warning" : "dark");
-
-  toastText.textContent = messaggio;
-
-  const toast = new bootstrap.Toast(toastEl);
-  toast.show();
-}
 
 fetch('/utenti/me')
   .then(res => res.text())
