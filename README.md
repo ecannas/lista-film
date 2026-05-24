@@ -16,50 +16,54 @@ Applicazione Spring Boot che permette di:
 
 🖥️ Usare interfaccia web realizzata con HTML, JavaScript e Bootstrap
 
-Progetto realizzato per esercitarsi con Spring Boot, REST API, Autenticazione, JPA, Services, e integrazione con API esterne.
+🐳 Avviare l'intero ambiente in modo automatizzato e isolato tramite Docker (con database persistente)
+
+Progetto realizzato per esercitarsi con Spring Boot, REST API, Autenticazione, JPA, Docker, e integrazione con API esterne.
 
 ---
 ## 🗂️ Struttura del Progetto
 ```text
 Film/
-└── src/
-    └── main/
-        ├── java/
-        │   └── com/lista/film/
-        │       ├── config/
-        │       │   ├── SecurityConfig.java
-        │       │   └── WebClientConfig.java
-        │       ├── controllers/
-        │       │   ├── MovieRestController.java
-        │       │   ├── PreferitiController.java
-        │       │   └── UtenteController.java
-        │       ├── dto/
-        │       │   ├── DettagliMovie.java
-        │       │   ├── Movie.java
-        │       │   └── RicercaMovie.java
-        │       ├── entities/
-        │       │   ├── PreferitiEntity.java
-        │       │   └── UtenteEntity.java
-        │       ├── repositories/
-        │       │   ├── PreferitiRepository.java
-        │       │   └── UtenteRepository.java
-        │       ├── services/
-        │       │   ├── CustomUserDetailsService.java
-        │       │   ├── MovieService.java
-        │       │   ├── PreferitiService.java
-        │       │   └── UtenteService.java
-        │       └── FilmApplication.java
-        ├── resources/
-        │   └── static/
-        │       ├── js/
-        │       │   ├── film.js
-        │       │   ├── preferiti.js
-        │       │   └── utils.js
-        │       ├── index.html
-        │       ├── login.html
-        │       ├── preferiti.html
-        │       └── register.html
-pom.xml
+├── src/
+│    └── main/
+│       ├── java/
+│       │   └── com/lista/film/
+│       │       ├── config/
+│       │       │   ├── SecurityConfig.java
+│       │       │   └── WebClientConfig.java
+│       │       ├── controllers/
+│       │       │   ├── MovieRestController.java
+│       │       │   ├── PreferitiController.java
+│       │       │   └── UtenteController.java
+│       │       ├── dto/
+│       │       │   ├── DettagliMovie.java
+│       │       │   ├── Movie.java
+│       │       │   └── RicercaMovie.java
+│       │       ├── entities/
+│       │       │   ├── PreferitiEntity.java
+│       │       │   └── UtenteEntity.java
+│       │       ├── repositories/
+│       │       │   ├── PreferitiRepository.java
+│       │       │   └── UtenteRepository.java
+│       │       ├── services/
+│       │       │   ├── CustomUserDetailsService.java
+│       │       │   ├── MovieService.java
+│       │       │   ├── PreferitiService.java
+│       │       │   └── UtenteService.java
+│       │       └── FilmApplication.java
+│       └── resources/
+│           └── static/
+│               ├── js/
+│               │   ├── film.js
+│               │   ├── preferiti.js
+│               │   └── utils.js
+│               ├── index.html
+│               ├── login.html
+│               ├── preferiti.html
+│               └── register.html
+├── Dockerfile
+├── docker-compose.yml
+└── pom.xml
 
 
 
@@ -76,44 +80,7 @@ pom.xml
 - Bootstrap 5.3.3
 - WebClient (per chiamate all’API OMDb)
 - Spring Security 6 (Protezione API, Gestione Sessioni, CookieCsrfTokenRepository, BCrypt)
-
-
-⚙️ Configurazione del database
-
-Crea un database MySQL, ad esempio: filmdb
-
-Assicurati che MySQL sia in esecuzione.  
-Se necessario, aggiorna i parametri di connessione nel file `application.properties`.
-
-Configura `src/main/resources/application.properties`:
-
-
-```properties
-spring.application.name=Film
-
-# --- Database ---
-spring.datasource.url=jdbc:mysql://localhost:3306/filmdb
-spring.datasource.username=YOUR_USERNAME
-spring.datasource.password=YOUR_PASSWORD
-spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
-
-# --- JPA / Hibernate ---
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
-
-# --- OMDb API ---
-omdb.api.url=https://www.omdbapi.com/
-omdb.api.key=YOUR_API_KEY
-```
-➡️ Hibernate crea automaticamente le tabelle al primo avvio.
-
-Se vuoi rigenerare lo schema da zero:
-```properties
-spring.jpa.hibernate.ddl-auto=create
-```
-
-(Poi riportalo a update.)
-
+- Docker & Docker Compose (Containerizzazione, Healthcheck, Volumi persistenti)
 
 🔌 Endpoint API Principali
 ```markdown
@@ -169,9 +136,61 @@ Le chiamate al backend vengono effettuate tramite fetch API asincrone. L'accesso
 
 ▶️ Avvio del progetto
 
-Da IDE (IntelliJ / Eclipse):
-- Importa il progetto come Maven Project
-- Esegui la classe: FilmApplication
+Hai due opzioni per avviare l'applicazione: in modo completamente automatizzato tramite Docker, oppure tramite configurazione manuale.
+
+🐳 Opzione 1: Avvio rapido con Docker (Consigliato)   
+Requisiti: Avere Docker Desktop installato e avviato.
+
+Non devi installare alcun database o configurare le porte localmente. L'infrastruttura crea automaticamente un container MySQL isolato con volume persistente per i dati.
+
+1. Apri il file `docker-compose.yml` nella root del progetto.
+2. Inserisci la tua chiave alla riga: ` OMDB_API_KEY=YOUR_API_KEY`
+3. Compila il progetto per generare il file eseguibile. Apri il terminale nella root del progetto e lancia:
+   ```bash
+   ./mvnw clean package -DskipTests 
+   ```
+(Nota per Windows: usa .\mvnw clean package -DskipTests)
+4. Una volta terminata la compilazione, avvia i container con:
+   ```bash
+   docker-compose up --build 
+   ```
+5. Attendi che i servizi siano "Healthy" e apri il browser su: http://localhost:8080/
+
+(Per spegnere in modo pulito mantenendo i dati salvati: docker-compose down)
+
+⚙️ Opzione 2: Avvio Manuale (Senza Docker)
+
+Se preferisci non usare Docker, dovrai configurare l'ambiente locale manualmente.
+
+1. Crea un database MySQL chiamato filmdb sulla porta 3306 e assicurati che sia in esecuzione.
+
+2. Configura il file src/main/resources/application.properties:
+
+```properties
+spring.application.name=Film
+
+# --- Database ---
+spring.datasource.url=jdbc:mysql://localhost:3306/filmdb
+spring.datasource.username=YOUR_USERNAME
+spring.datasource.password=YOUR_PASSWORD
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+# --- JPA / Hibernate ---
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+
+# --- OMDb API ---
+omdb.api.url=https://www.omdbapi.com/
+omdb.api.key=YOUR_API_KEY
+```
+➡️ **Nota sulle tabelle:** Hibernate crea automaticamente le tabelle al primo avvio.
+Se vuoi rigenerare lo schema da zero, puoi cambiare il parametro in:
+   ```properties
+   spring.jpa.hibernate.ddl-auto=create
+```
+(Poi riportalo a update per non perdere i dati ai riavvii successivi).
+3. Importa il progetto nell'IDE come progetto Maven.
+4. Esegui la classe principale `FilmApplication`.
 
 Apri nel browser:
 http://localhost:8080/
