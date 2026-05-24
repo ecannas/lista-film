@@ -149,7 +149,8 @@ Non devi installare alcun database o configurare le porte localmente. L'infrastr
    ```bash
    ./mvnw clean package -DskipTests 
    ```
-(Nota per Windows: usa .\mvnw clean package -DskipTests)
+(Nota per Windows: usa .\mvnw clean package -DskipTests)  
+
 4. Una volta terminata la compilazione, avvia i container con:
    ```bash
    docker-compose up --build 
@@ -188,8 +189,10 @@ Se vuoi rigenerare lo schema da zero, puoi cambiare il parametro in:
    ```properties
    spring.jpa.hibernate.ddl-auto=create
 ```
-(Poi riportalo a update per non perdere i dati ai riavvii successivi).
-3. Importa il progetto nell'IDE come progetto Maven.
+(Poi riportalo a update per non perdere i dati ai riavvii successivi).  
+
+3. Importa il progetto nell'IDE come progetto Maven.   
+
 4. Esegui la classe principale `FilmApplication`.
 
 Apri nel browser:
