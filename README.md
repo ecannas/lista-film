@@ -1,6 +1,6 @@
-📘 README.md — Spring Boot Film App (OMDb + Preferiti)
+# 🎬 Spring Boot Film App (OMDb + Preferiti)
 
-🎬 Ricerca Film (OMDb) + Preferiti
+[![Spring Boot CI](https://github.com/ecannas/lista-film/actions/workflows/ci.yml/badge.svg)](https://github.com/ecannas/lista-film/actions/workflows/ci.yml)
 
 Applicazione Spring Boot che permette di:
 
