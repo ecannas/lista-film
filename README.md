@@ -1,169 +1,183 @@
-# 🎬 Spring Boot Film App (OMDb + Preferiti)
+🎬 Film App - Full-Stack REST Architecture
 
 [![Spring Boot CI](https://github.com/ecannas/lista-film/actions/workflows/ci.yml/badge.svg)](https://github.com/ecannas/lista-film/actions/workflows/ci.yml)
 
-Applicazione Spring Boot che permette di:
+Applicazione Web Full-Stack per la ricerca e la gestione di film preferiti, costruita con un'architettura disaccoppiata (Backend REST API + Frontend SPA).
 
-🔍 Cercare film tramite API OMDb
+L'applicazione permette di:
 
-⭐ Aggiungere film ai preferiti
+🔍 **Cercare film** interfacciandosi con l'API esterna di OMDb.
 
-👤 Registrarsi / effettuare login
+⭐ **Salvare e gestire** una lista personale di film preferiti.
 
-🔐 Gestione dell'autenticazione e dell'autorizzazione tramite Spring Security 6, con salvataggio sicuro delle password (BCrypt) e protezione attiva contro vulnerabilità CSRF.
+👤 **Registrarsi ed effettuare il login** in totale sicurezza.
 
-💾 Salvare utenti e preferiti su database
+💾 **Salvare utenti e preferiti** su database relazionale.
 
-🖥️ Usare interfaccia web realizzata con HTML, JavaScript e Bootstrap
+🔐 **Gestire l'autenticazione** tramite Spring Security 6 (Sessioni persistenti, BCrypt, Cookie JSESSIONID).
 
-🐳 Avviare l'intero ambiente in modo automatizzato e isolato tramite Docker (con database persistente)
+🐳 **Avviare l'intero ambiente** in modo automatizzato e isolato tramite Docker (con database persistente)
 
-Progetto realizzato per esercitarsi con Spring Boot, REST API, Autenticazione, JPA, Docker, e integrazione con API esterne.
+Progetto realizzato per esercitarsi con Spring Boot, React, REST API, Autenticazione, JPA, Docker, e integrazione con API esterne.
 
 ---
 ## 🗂️ Struttura del Progetto
+
+Il progetto è organizzato in un singolo repository contenente due ambienti isolati:
+
 ```text
-Film/
-├── src/
-│    └── main/
-│       ├── java/
-│       │   └── com/lista/film/
-│       │       ├── config/
-│       │       │   ├── SecurityConfig.java
-│       │       │   └── WebClientConfig.java
-│       │       ├── controllers/
-│       │       │   ├── MovieRestController.java
-│       │       │   ├── PreferitiController.java
-│       │       │   └── UtenteController.java
-│       │       ├── dto/
-│       │       │   ├── DettagliMovie.java
-│       │       │   ├── Movie.java
-│       │       │   └── RicercaMovie.java
-│       │       ├── entities/
-│       │       │   ├── PreferitiEntity.java
-│       │       │   └── UtenteEntity.java
-│       │       ├── repositories/
-│       │       │   ├── PreferitiRepository.java
-│       │       │   └── UtenteRepository.java
-│       │       ├── services/
-│       │       │   ├── CustomUserDetailsService.java
-│       │       │   ├── MovieService.java
-│       │       │   ├── PreferitiService.java
-│       │       │   └── UtenteService.java
-│       │       └── FilmApplication.java
-│       └── resources/
-│           └── static/
-│               ├── js/
-│               │   ├── film.js
-│               │   ├── preferiti.js
-│               │   └── utils.js
-│               ├── index.html
-│               ├── login.html
-│               ├── preferiti.html
-│               └── register.html
-├── Dockerfile
-├── docker-compose.yml
-└── pom.xml
-
-
-
+Film-App/
+│
+├── backend/                
+│   ├── src/
+│   │    └── main/
+│   │       ├── java/
+│   │       │   └── com/lista/film/
+│   │       │       ├── config/
+│   │       │       │   ├── SecurityConfig.java
+│   │       │       │   └── WebClientConfig.java
+│   │       │       ├── controllers/
+│   │       │       │   ├── AuthController.java
+│   │       │       │   ├── MovieRestController.java
+│   │       │       │   ├── PreferitiController.java
+│   │       │       │   └── UtenteController.java
+│   │       │       ├── dto/
+│   │       │       │   ├── DettagliMovie.java
+│   │       │       │   ├── LoginRequest.java
+│   │       │       │   ├── Movie.java
+│   │       │       │   └── RicercaMovie.java
+│   │       │       ├── entities/
+│   │       │       │   ├── PreferitiEntity.java
+│   │       │       │   └── UtenteEntity.java
+│   │       │       ├── repositories/
+│   │       │       │   ├── PreferitiRepository.java
+│   │       │       │   └── UtenteRepository.java
+│   │       │       ├── services/
+│   │       │       │   ├── CustomUserDetailsService.java
+│   │       │       │   ├── MovieService.java
+│   │       │       │   ├── PreferitiService.java
+│   │       │       │   └── UtenteService.java
+│   │       │       └── FilmApplication.java
+│   │       └── resources/
+│   │           └── application.properties
+│   ├── docker-compose.yml
+│   ├── Dockerfile
+│   └── pom.xml
+│
+└── frontend/
+    ├── src/
+    │   ├── components/  
+    │   │    ├── FilmCard.jsx
+    │   │    ├── Navbar.jsx
+    │   │    └── SearchBar.jsx
+    │   ├── pages/  
+    │   │    ├── Home.jsx
+    │   │    ├── Login.jsx
+    │   │    ├── Preferiti.jsx
+    │   │    └── Register.jsx        
+    │   ├── App.jsx         
+    │   └── main.jsx
+    ├── index.html       
+    ├── package.json        
+    └── vite.config.js                  
 ```
 
 
 🚀 Tecnologie utilizzate
+
+Backend (API Server)
 - Java 17
-- Spring Boot 3.5.6
-- Spring Web
-- Spring Data JPA
+
+- Spring Boot 3.5.6 (Spring Web, Spring Data JPA)
+
 - MySQL
-- Vanilla JavaScript
-- Bootstrap 5.3.3
+
+- Spring Security 6 (Gestione manuale del SecurityContextRepository, BCrypt)
+
 - WebClient (per chiamate all’API OMDb)
-- Spring Security 6 (Protezione API, Gestione Sessioni, CookieCsrfTokenRepository, BCrypt)
+
 - Docker & Docker Compose (Containerizzazione, Healthcheck, Volumi persistenti)
 
+Frontend (Client)
+
+- React.js (Hooks, Functional Components)
+
+- Vite (Bundler e Proxy server locale)
+
+- React Router DOM (Navigazione lato client)
+
+- Bootstrap 5.3.3 & Bootstrap Icons
+
+
 🔌 Endpoint API Principali
+
+Il backend espone esclusivamente dati in formato JSON tramite la rotta base /api.
+
 ```markdown
 🎬 Film (/api/film)
 
 | Metodo | Endpoint                          | Descrizione                         |
 |--------|-----------------------------------|-------------------------------------|
 | GET    | /api/film/cercare-film?titolo=... | Cerca film tramite OMDb             |
-| GET    | /api/film/{imdbID}                | Dettagli film tramite OMDb          |
+| GET    | /api/film/{id}                    | Dettagli film tramite OMDb          |
 
 
 ⭐ Preferiti (/api/preferiti)
 
 | Metodo | Endpoint                       | Descrizione                             |
 |--------|--------------------------------|-----------------------------------------|
-| GET    | /api/preferiti                 | Lista dei preferiti dell’utente         |
+| GET    | /api/preferiti                 | Lista dei preferiti dell’utente loggato |
 | POST   | /api/preferiti                 | Aggiunge un film ai preferiti           |
 | DELETE | /api/preferiti/{imdbID}        | Rimuove un film dai preferiti           |
 | GET    | /api/preferiti/esiste/{imdbID} | Verifica se un film è nei preferiti     |
 
 
-👤 Utenti (/utenti)
+👤 Autenticazione e Utenti (/api/auth e /api/utenti)
 
-| Metodo | Endpoint           | Descrizione                          |
-|--------|--------------------|--------------------------------------|
-| POST   | /utenti/register   | Registrazione nuovo utente           |
-| GET    | /utenti/me         | Username dell’utente loggato         |
+| Metodo | Endpoint                  | Descrizione                                      |
+|--------|---------------------------|--------------------------------------------------|
+| POST   | /api/auth/login           | Login utente (genera JSESSIONID)                 |
+| POST   | /api/auth/logout          | Logout (invalida sessione gestita da Spring)     |
+| POST   | /api/utenti/register      | Registrazione nuovo utente                       |
+| GET    | /api/utenti/me            | Verifica sessione attiva all'avvio dell'app      |
 
-Nota: Gli endpoint /login (POST) e /logout (POST) non sono mappati nei controller, ma sono gestiti automaticamente in modo sicuro dai filtri nativi di Spring Security.
 ```
 
-> ⚠️ Architettura di Sicurezza  
-> Il progetto implementa una netta separazione tra frontend e backend RESTful, protetta da Spring Security:
-> - **API REST** (/api/**): Protette da accesso non autorizzato. Le chiamate che modificano lo stato (POST, PUT, DELETE) richiedono un token CSRF.
-> - **Gestione Utenti**: Le password sono hashate tramite BCryptPasswordEncoder prima del salvataggio su database.
-> - **Integrazione Frontend**: Il frontend (Vanilla JS) comunica con Spring Security leggendo il cookie XSRF-TOKEN e allegandolo agli header delle chiamate di mutazione, permettendo un'architettura sicura senza l'uso di template engine server-side.
+> ⚠️ Architettura di Sicurezza e Comunicazione
+>
+> Il progetto implementa una comunicazione sicura tra due server locali in sviluppo (Vite su porta 5173 e Spring su porta 8080).
+> - **CORS e Proxy**: In sviluppo, il frontend utilizza il proxy di Vite per instradare le chiamate ad /api verso Spring Boot, bypassando i blocchi CORS del browser e simulando un ambiente di produzione.
+> - **Gestione Sessione**: L'autenticazione usa cookie HttpOnly. Tutte le richieste del frontend a rotte protette includono credentials: 'include' per trasmettere il JSESSIONID a Spring Security.
+> - **SecurityContextRepository**: Data la natura REST del backend, in Spring Security 6 il contesto di sicurezza è esplicitamente salvato nel repository delle sessioni (HttpSessionSecurityContextRepository) per garantire la persistenza dell'utente tra diverse chiamate HTTP.
 
-
-🖥️ Interfaccia Web
-
-L’applicazione espone un’interfaccia web semplice realizzata con **HTML, JavaScript e Bootstrap**.
-
-Le pagine statiche si trovano in:
-src/main/resources/static/
-
-Pagine principali:
-- index.html → ricerca film e visualizzazione dettagli
-- login.html → login utente
-- register.html → registrazione utente
-- preferiti.html → lista dei film preferiti
-
-Le chiamate al backend vengono effettuate tramite fetch API asincrone. L'accesso alle risorse è validato automaticamente dalla SecurityFilterChain di Spring Security. Per le operazioni di scrittura (come l'aggiunta o la rimozione di preferiti), il frontend JavaScript recupera dinamicamente il token CSRF dai cookie e lo inietta negli header HTTP per superare i controlli di sicurezza del server.
 
 ▶️ Avvio del progetto
 
-Hai due opzioni per avviare l'applicazione: in modo completamente automatizzato tramite Docker, oppure tramite configurazione manuale.
+Essendo un'architettura disaccoppiata, dovrai avviare separatamente il motore Database/Backend e il server Frontend.
 
-🐳 Opzione 1: Avvio rapido con Docker (Consigliato)   
-Requisiti: Avere Docker Desktop installato e avviato.
+**STEP 1**: Avviare il Backend (Spring Boot + MySQL)
 
-Non devi installare alcun database o configurare le porte localmente. L'infrastruttura crea automaticamente un container MySQL isolato con volume persistente per i dati.
+**Opzione Consigliata**: Tramite Docker
 
-1. Apri il file `docker-compose.yml` nella root del progetto.
-2. Inserisci la tua chiave alla riga: ` OMDB_API_KEY=YOUR_API_KEY`
-3. Compila il progetto per generare il file eseguibile. Apri il terminale nella root del progetto e lancia:
+1. Entra nella cartella del backend: `cd backend`
+2. Apri il file `docker-compose.yml` e inserisci la tua chiave OMDb alla riga: ` OMDB_API_KEY=YOUR_API_KEY`
+3. Compila il progetto Maven:
    ```bash
    ./mvnw clean package -DskipTests 
    ```
 (Nota per Windows: usa .\mvnw clean package -DskipTests)  
 
-4. Una volta terminata la compilazione, avvia i container con:
+4. Una volta terminata la compilazione, costruisci e avvia i container con:
    ```bash
    docker-compose up --build 
    ```
-5. Attendi che i servizi siano "Healthy" e apri il browser su: http://localhost:8080/
+(Il server backend sarà in ascolto silenzioso sulla porta 8080).
 
-(Per spegnere in modo pulito mantenendo i dati salvati: docker-compose down)
-
-⚙️ Opzione 2: Avvio Manuale (Senza Docker)
+**Opzione alternativa**: Avvio Manuale (Senza Docker)
 
 Se preferisci non usare Docker, dovrai configurare l'ambiente locale manualmente.
 
-1. Crea un database MySQL chiamato filmdb sulla porta 3306 e assicurati che sia in esecuzione.
+1. Crea un database MySQL chiamato `filmdb` sulla porta 3306 e assicurati che sia in esecuzione.
 
 2. Configura il file src/main/resources/application.properties:
 
@@ -195,11 +209,22 @@ Se vuoi rigenerare lo schema da zero, puoi cambiare il parametro in:
 
 4. Esegui la classe principale `FilmApplication`.
 
-Apri nel browser:
-http://localhost:8080/
+**STEP 2**: Avviare il Frontend (React)
+
+1. Apri una nuova finestra del terminale.
+2. Entra nella cartella del frontend: `cd frontend`
+3. Installa le dipendenze Node.js:
+   ```bash
+   npm install 
+   ```
+4. Avvia il server di sviluppo Vite:
+   ```bash
+   npm run dev 
+   ```
+5. Apri il browser all'indirizzo indicato dal terminale (solitamente `http://localhost:5173/`).
 
 📄 Licenza
 
 Progetto open source realizzato per scopi didattici.  
-Creato come esercizio personale per apprendere Spring Boot, API REST, autenticazione tramite sessione e integrazione con API esterne.  
+Creato come esercizio personale per approfondire l'integrazione Full-Stack tra React.js e Spring Boot, gestione dello stato, sicurezza API REST e containerizzazione Docker.  
 Libero utilizzo e modifica.
